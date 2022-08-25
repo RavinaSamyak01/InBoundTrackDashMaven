@@ -1,16 +1,14 @@
 package inBoundTDash;
 
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Platform;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -21,7 +19,6 @@ import org.testng.annotations.Test;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 
-
 public class InBoundTrackDashBoard {
 	public static StringBuilder msg = new StringBuilder();
 	public static WebDriver Driver;
@@ -29,43 +26,29 @@ public class InBoundTrackDashBoard {
 
 	@BeforeSuite
 	public void beforeMethod() {
+
+		// --Opening Chrome Browser
 		DesiredCapabilities capabilities = new DesiredCapabilities();
 		WebDriverManager.chromedriver().setup();
 		ChromeOptions options = new ChromeOptions();
-		// options.addArguments("headless");
-		// options.addArguments("--incognito");
+		options.addArguments("--headless", "--window-size=1920,1200");
+		options.addArguments("--incognito");
 		options.addArguments("--test-type");
 		options.addArguments("--no-proxy-server");
 		options.addArguments("--proxy-bypass-list=*");
 		options.addArguments("--disable-extensions");
 		options.addArguments("--no-sandbox");
-		options.addArguments("--start-maximized");
-		// options.addArguments("--start-fullscreen");
-
-		// options.addArguments("--headless");
-		// options.addArguments("window-size=1366x788");
-		capabilities.setPlatform(Platform.ANY);
+		String downloadFilepath = System.getProperty("user.dir") + "\\src\\main\\resources\\Downloads";
+		HashMap<String, Object> chromePrefs = new HashMap<String, Object>();
+		chromePrefs.put("profile.default_content_settings.popups", 0);
+		chromePrefs.put("download.prompt_for_download", "false");
+		chromePrefs.put("safebrowsing.enabled", "false");
+		chromePrefs.put("download.default_directory", downloadFilepath);
+		options.setExperimentalOption("prefs", chromePrefs);
+		capabilities.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
 		capabilities.setCapability(ChromeOptions.CAPABILITY, options);
+		capabilities.setPlatform(Platform.ANY);
 		Driver = new ChromeDriver(options);
-		// Default size
-		Dimension currentDimension = Driver.manage().window().getSize();
-		int height = currentDimension.getHeight();
-		int width = currentDimension.getWidth();
-		System.out.println("Current height: " + height);
-		System.out.println("Current width: " + width);
-		System.out.println("window size==" + Driver.manage().window().getSize());
-
-		// Set new size
-		/*
-		 * Dimension newDimension = new Dimension(1366, 788);
-		 * Driver.manage().window().setSize(newDimension);
-		 */
-		// Getting
-		Dimension newSetDimension = Driver.manage().window().getSize();
-		int newHeight = newSetDimension.getHeight();
-		int newWidth = newSetDimension.getWidth();
-		System.out.println("Current height: " + newHeight);
-		System.out.println("Current width: " + newWidth);
 
 	}
 
@@ -93,7 +76,6 @@ public class InBoundTrackDashBoard {
 		// --Take the screenshot
 		Screenshots.takeSnapShot(Driver, ".\\src\\main\\resources\\Screenshots\\result.jpg");
 
-
 	}
 
 	@AfterTest
@@ -115,8 +97,9 @@ public class InBoundTrackDashBoard {
 
 		try {
 //			/kunjan.modi@samyak.com, pgandhi@samyak.com,parth.doshi@samyak.com
-			SendEmail.sendMail("ravina.prajapati@samyak.com,asharma@samyak.com,parth.doshi@samyak.com", subject,
-					msg.toString(), File);
+			SendEmail.sendMail(
+					"ravina.prajapati@samyak.com,asharma@samyak.com,parth.doshi@samyak.com, saurabh.jain@samyak.com, himanshu.dholakia@samyak.com",
+					subject, msg.toString(), File);
 
 			// SendEmail.sendMail("ravina.prajapati@samyak.com, asharma@samyak.com
 			// ,parth.doshi@samyak.com", subject, msg.toString(), File);
